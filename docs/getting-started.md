@@ -1,35 +1,34 @@
 +++
-title = "Getting Started"
+title = "入门指南"
 weight = 3
 nav = [
-     "Starting Pilosa",
-     "Sample Project",
-     "What's Next?",
+     "启动 pilosa",
+     "例子",
+     "下一步做什么?",
 ]
 +++
 
-## Getting Started
+## 启动 pilosa
 
-Pilosa supports an HTTP interface which uses JSON by default.
-Any HTTP tool can be used to interact with the Pilosa server. The examples in this documentation will use [curl](https://curl.haxx.se/) which is available by default on many UNIX-like systems including Linux and MacOS. Windows users can download curl [here](https://curl.haxx.se/download.html).
+Pilosa 默认提供 JSON 数据类型的 HTTP 服务。任何 HTTP 工具都可用于与 Pilosa 服务器进行交互。本文档中的示例将使用 [curl](https://curl.haxx.se/)，许多类 UNIX 系统，包括 Linux 和 MacOS 可以直接使用。Windows 用户可以在[这里](https://curl.haxx.se/download.html)下载 curl 。
 
 <div class="note">
-    <p>Note that Pilosa server requires a high limit for open files. Check the documentation of your system to see how to increase it in case you hit that limit. See <a href="/docs/administration/#open-file-limits">Open File Limits</a> for more details.</p>
+    <p>请注意，Pilosa服务器要求打开文件的上限。检查系统文档，了解如何在达到该限制时增加它。有关详细信息，请参阅<a href="/docs/administration/#open-file-limits">打开文件限制</a>。</p>
 </div>
 
-### Starting Pilosa
+### 开始 Pilosa
 
-Follow the steps in the [Installation](../installation/) document to install Pilosa.
-Execute the following in a terminal to run Pilosa with the default configuration (Pilosa will be available at [localhost:10101](http://localhost:10101)):
+按照[安装文档](../installation/)中的步骤安装 Pilosa。在终端中执行以下命令以使用默认配置运行Pilosa（Pilosa 启动在 [localhost:10101](http://localhost:10101)）：
+
 ```
 pilosa server
 ```
-If you are using the Docker image, you can run an ephemeral Pilosa container on the default address using the following command:
+如果您使用的是 Docker 镜像，则可以使用以下命令在默认地址上运行短暂的 Pilosa 容器：
 ```
 docker run -it --rm --name pilosa -p 10101:10101 pilosa/pilosa:latest
 ```
 
-Let's make sure Pilosa is running:
+让我们确保Pilosa正在运行：
 ``` request
 curl localhost:10101/status
 ```
@@ -38,16 +37,18 @@ curl localhost:10101/status
 ":10101},"isCoordinator":true}],"localID":"91715a50-7d50-4c54-9a03-873801da1cd1"}
 ```
 
-### Sample Project
+### 例子
 
-In order to better understand Pilosa's capabilities, we will create a sample project called "Star Trace" containing information about 1,000 popular Github repositories which have "go" in their name. The Star Trace index will include data points such as programming language, tags, and stargazers—people who have starred a project.
+为了更好地理解 Pilosa 的功能，我们将创建一个名为“Star Trace”的示例项目，其中包含有关1,000名流行的Github 项目，这些项目名称中包含“go”。Star Trace 索引将包括数据点，例如编程语言，标签和标星用户 - 已经为项目加星标的人。
 
-Although Pilosa doesn't keep the data in a tabular format, we still use the terms "columns" and "rows" when describing the data model. We put the primary objects in columns, and the properties of those objects in rows. For example, the Star Trace project will contain an index called "repository" which contains columns representing Github repositories, and rows representing properties like programming languages and tags. We can better organize the rows by grouping them into sets called Fields. So the "repository" index might have a "languages" field as well as a "tags" field. You can learn more about indexes and fields in the [Data Model](../data-model/) section of the documentation.
+尽管 Pilosa 没有以表格格式保存数据，但在描述数据模型时我们仍然使用术语“columns（列）”和“rows（行）”（译注：以下全部翻译为列和行）。我们将主对象放在列中，并将这些对象的属性放在行中。例如，Star Trace 项目将包含一个名为“repository”的索引，其中包含表示Github项目的列，以及表示编程语言和标记等属性的行。我们可以通过将行分组为名为Fields的集合来更好地组织行。因此，“项目”索引可能具有“语言”字段以及“标记”字段。您可以在文档的“ [数据模型](../data-model/)”部分中了解有关索引和字段的更多信息。
 
-#### Create the Schema
+#### 创建 Schema
 
-Note:
-If at any time you want to verify the data structure, you can request the schema as follows:
+注意：
+如果您想在任何时候验证数据结构，可以按如下方式查询 schema：
+
+
 
 ``` request
 curl localhost:10101/schema
@@ -56,16 +57,16 @@ curl localhost:10101/schema
 {"indexes":null}
 ```
 
-Before we can import data or run queries, we need to create our indexes and the fields within them. Let's create the repository index first:
+在我们可以导入数据或运行查询之前，我们需要创建索引及其中的字段。让我们先创建项目索引：
 ``` request
 curl localhost:10101/index/repository -X POST
 ```
 ``` response
 {"success":true}
 ```
-The index name must be 64 characters or less, start with a letter, and consist only of lowercase alphanumeric characters or `_-`.
+索引名称必须是不大于64个字符，以字母开头，并且只包含小写字母数字或`_-`符号。
+让我们创建一个`stargazer`具有stargazers用户ID作为其行的字段：
 
-Let's create the `stargazer` field which has user IDs of stargazers as its rows:
 ``` request
 curl localhost:10101/index/repository/field/stargazer \
      -X POST \
@@ -75,9 +76,9 @@ curl localhost:10101/index/repository/field/stargazer \
 {"success":true}
 ```
 
-Since our data contains time stamps which represent the time users starred repos, we set the field type to `time`. Time quantum is the resolution of the time we want to use, and we set it to `YMD` (year, month, day) for `stargazer`.
+由于我们的数据包含时间戳，这些时间戳代表用户标星的时间，因此我们将字段类型设置为`time`。时间格式是我们想要使用的时间的分辨率，我们将其设置为`YMD`（年，月，日）`stargazer`。
 
-Next up is the `language` field, which will contain IDs for programming languages:
+接下来是`language`字段，用来存储编程语言的ID：
 ``` request
 curl localhost:10101/index/repository/field/language \
      -X POST
@@ -85,31 +86,29 @@ curl localhost:10101/index/repository/field/language \
 ``` response
 {"success":true}
 ```
+`language` 是一个 `set` 字段，但由于默认字段类型是 `set`，我们没有在选项中指定它。
 
-The `language` is a `set` field, but since the default field type is `set`, we didn't specify it in field options.
-
-#### Import Data From CSV Files
+#### 从CSV文件导入数据
 
 <div class="note">
-    <p>For demonstration purposes, we're using Pilosa's built in utility to import specially formatted CSV files. For more general usage, see how the various client libraries expose the bulk import functionality in <a href="https://github.com/pilosa/go-pilosa/blob/master/docs/imports-exports.md">Go</a>, <a href="https://github.com/pilosa/java-pilosa/blob/master/docs/imports.md">Java</a>, and <a href="https://github.com/pilosa/python-pilosa/tree/master/docs/imports.md">Python</a>. </p>
+    <p>出于演示目的，我们使用`Pilosa`的内置实用程序来导入特殊格式的`CSV`文件。有关更多常规用法，请参阅各种客户端库如何在<a href="https://github.com/pilosa/go-pilosa/blob/master/docs/imports-exports.md">Go</a>，<a href="https://github.com/pilosa/java-pilosa/blob/master/docs/imports.md">Java</a>和<a href="https://github.com/pilosa/python-pilosa/tree/master/docs/imports.md">Python</a>中公开批量导入功能。</p>
 </div>
 
-
-Download the `stargazer.csv` and `language.csv` files here:
+在这里下载`stargazer.csv`和`language.csv`文件：
 
 ```
 curl -O https://raw.githubusercontent.com/pilosa/getting-started/master/stargazer.csv
 curl -O https://raw.githubusercontent.com/pilosa/getting-started/master/language.csv
 ```
 
-Run the following commands to import the data into Pilosa:
+运行以下命令将数据导入 Pilosa：
 
 ```
 pilosa import -i repository -f stargazer stargazer.csv
 pilosa import -i repository -f language language.csv
 ```
 
-If you are using a Docker container for Pilosa (with name `pilosa`), you should instead copy the `*.csv` file into the container and then import them:
+如果您正在为 Pilosa 使用Docker容器（名称 pilosa），则应将`*.csv`文件复制到容器中，然后导入它们：
 ```
 docker cp stargazer.csv pilosa:/stargazer.csv
 docker exec -it pilosa /pilosa import -i repository -f stargazer /stargazer.csv
@@ -117,11 +116,11 @@ docker cp language.csv pilosa:/language.csv
 docker exec -it pilosa /pilosa import -i repository -f language /language.csv
 ```
 
-Note that both the user IDs and the repository IDs were remapped to sequential integers in the data files, they don't correspond to actual Github IDs anymore. You can check out [languages.txt](https://github.com/pilosa/getting-started/blob/master/languages.txt) to see the mapping for languages.
+请注意，用户ID和项目ID都重新映射到数据文件中的顺序整数，它们不再对应于实际的 Github ID。您可以查看[languages.txt](https://github.com/pilosa/getting-started/blob/master/languages.txt) 以查看语言的映射。
 
-#### Make Some Queries
+#### 查询
 
-Which repositories did user 14 star:
+有14个星的项目：
 ``` request
 curl localhost:10101/index/repository/query \
      -X POST \
@@ -138,7 +137,7 @@ curl localhost:10101/index/repository/query \
 }
 ```
 
-What are the top 5 languages in the sample data:
+项目使用的前5中语言是什么:
 ``` request
 curl localhost:10101/index/repository/query \
      -X POST \
@@ -158,7 +157,7 @@ curl localhost:10101/index/repository/query \
 }
 ```
 
-Which repositories were starred by user 14 and 19:
+用户14和19共同标星了哪些项目：
 ``` request
 curl localhost:10101/index/repository/query \
      -X POST \
@@ -178,7 +177,7 @@ curl localhost:10101/index/repository/query \
 }
 ```
 
-Which repositories were starred by user 14 or 19:
+用户14和19标星了哪些项目：
 ``` request
 curl localhost:10101/index/repository/query \
      -X POST \
@@ -198,7 +197,7 @@ curl localhost:10101/index/repository/query \
 }
 ```
 
-Which repositories were starred by user 14 and 19 and also were written in language 1:
+哪些项目由用户14和19加星标，并且还用语言1编写：
 ``` request
 curl localhost:10101/index/repository/query \
      -X POST \
@@ -218,8 +217,7 @@ curl localhost:10101/index/repository/query \
     ]
 }
 ```
-
-Set user 99999 as a stargazer for repository 77777:
+将用户99999为存储库77777的标星：
 ``` request
 curl localhost:10101/index/repository/query \
      -X POST \
@@ -229,11 +227,11 @@ curl localhost:10101/index/repository/query \
 {"results":[true]}
 ```
 
-Please note that while user ID 99999 may not be sequential with the other column IDs, it is still a relatively low number. 
-Don't try to use arbitrary 64-bit integers as column or row IDs in Pilosa - this will lead to problems such as poor performance and out of memory errors.
+请注意，虽然用户ID 99999可能与其他列ID不一致，但它仍然是一个相对较低的数字。
+不要尝试在Pilosa中使用任意64位整数作为列或行ID - 这将导致诸如性能不佳和内存不足错误等问题。
 
 
+### 下一步是什么？
 
-### What's Next?
-
-You can jump to [Data Model](../data-model/) for an in-depth look at Pilosa's data model, or [Query Language](../query-language/) for more details about **PQL**, the query language of Pilosa. Check out the [Examples](../examples/) page for example implementations of real world use cases for Pilosa. Ready to get going in your favorite language? Have a peek at our small but expanding set of official [Client Libraries](../client-libraries/).
+下一步是什么？
+您可以跳转到[数据模型](../data-model/)以深入了解 Pilosa 的数据模型，或[Query Language](../query-language/)以获取有关 **PQL** （Pilosa Query Language）的更多详细信息。查看[示例](../examples/)了解 Pilosa 真实的示例实现。准备好用你最喜欢的语言？看看我们的小型但不断扩展的[官方客户端库](../client-libraries/)。

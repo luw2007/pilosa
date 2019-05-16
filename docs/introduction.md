@@ -1,19 +1,21 @@
 +++
-title = "Introduction"
+title = "介绍"
 weight = 1
 nav = []
 +++
 
 
-## Introduction
+## 介绍
 
 
-Pilosa is an open source, distributed index.
+Pilosa 是一个开源的分布式索引。
 
 [//]: # (TODO insert a graphic here?)
 
-It is designed primarily for speed and horizontal scalability. If you have data with billions of objects that can have millions of possible attributes, and you want to explore those relationships, Pilosa can help you.
+设计重点在速度和扩展性。如果你有亿级数据，他们可能具备百万的属性。Pilosa可以帮助您探索它们之间的关系。
 
-"What attributes are the most common?", "Which objects have these specific attributes?", "What groups of attributes often appear together?" Pilosa is designed to answer these types of queries in real time, suitable for use with high rate data streams, or to power a user interface.
+“哪些属性最常见？”，“哪些对象具有这些特定属性？”，“哪些属性组经常出现在一起？”Pilosa被设计成实时处理类似的查询，适用于高速率数据流，或为用户界面提供支持。
 
-Once you have Pilosa [installed](../installation/), the [getting started](../getting-started/) guide will show you the basics of interacting with Pilosa and give you some pointers for deeper exploration.
+入门指南将向您展示与Pilosa交互的基础知识，并为您提供更深入探索的一些指导。
+
+在 [安装](../installation/) 之后, [入门指南](../getting-started/) 将提供与Pilosa交互的基础知识，和一些深入探索的指导。

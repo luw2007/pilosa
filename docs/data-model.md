@@ -1,5 +1,5 @@
 +++
-title = "Data Model"
+title = "数据模型"
 weight = 5
 nav = [
     "Overview",
