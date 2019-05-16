@@ -34,7 +34,7 @@ Pilosa 的理念是：将所有内容表示为位图。例如，对象之间的�
 
 [Captivity计为单个位图](https://www.pilosa.com/img/blog/range-encoded-bitmaps/captive-rows.png) Captivity Counts表示为单个位图
 
-这种方法没问题，但它有一些限制。首先，它效率不高。根据基数，您可能需要创建大量位图来表示所有可能的值。其次，如果要按一系列`Captivity`值过滤查询，则必须对范围内的每个可能值执行`OR`操作。为了知道哪些动物的`Captivity`数量少于100个，你的查询需要执行类似的操作（Captivity=99 OR Captivity=98 OR Captivity=97 OR ...）。明白了吗。
+这种方法没问题，但它有一些限制。首先，它效率不高。根据基数，您可能需要创建大量位图来表示所有可能的值。其次，如果要按一系列`Captivity`值过滤查询，则必须对范围内的每个可能值执行`OR`操作。为了知道哪些动物的`Captivity`数量少于100个，您的查询需要执行类似的操作（Captivity=99 OR Captivity=98 OR Captivity=97 OR ...）。明白了吗。
 
 另一种方法是创建`Captivity`范围桶，而不是将每个可能的值表示为唯一的位图。在这种情况下，您可能会有这样的事情：
 
@@ -145,6 +145,6 @@ curl localhost:10101/index/animals/query \
 
 我们在版本0.7.0中添加了Range-Encoding支持。您还应该查看范围编码文档。
 
-尝试一下，让我们知道你的想法。我们一直在寻求改进并感谢您的任何反馈！
+尝试一下，让我们知道您的想法。我们一直在寻求改进并感谢您的任何反馈！
 
 Travis 是 Pilosa 的首席架构师。 在 Twitter 上找到他 [@travislturner](https://twitter.com/travislturner?lang=en)。

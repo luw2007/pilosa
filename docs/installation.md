@@ -18,7 +18,7 @@ Pilosa 目前支持 [MacOS](#installing-on-macos) 和 [Linux](#installing-on-lin
 
 #### 使用 Homebrew
 
-1. 更新你的 Homebrew 仓库：
+1. 更新您的 Homebrew 仓库：
     ```
     brew update
     ```
@@ -33,7 +33,7 @@ Pilosa 目前支持 [MacOS](#installing-on-macos) 和 [Linux](#installing-on-lin
     pilosa
     ```
 
-    如果你看到类似的东西：
+    如果您看到类似的东西：
     ```
     Pilosa is a fast index to turbocharge your database.
 
@@ -80,7 +80,7 @@ Pilosa 目前支持 [MacOS](#installing-on-macos) 和 [Linux](#installing-on-lin
     tar xfz pilosa-v1.3.0-darwin-amd64.tar.gz
     ```
 
-3. 将二进制文件移动到你的执行目录中，以便可以 `pilosa` 在任何地方运行：
+3. 将二进制文件移动到您的执行目录中，以便可以 `pilosa` 在任何地方运行：
     ```
     cp -i pilosa-v1.3.0-darwin-amd64/pilosa /usr/local/bin
     ```
@@ -189,7 +189,7 @@ Pilosa 目前支持 [MacOS](#installing-on-macos) 和 [Linux](#installing-on-lin
 
 #### 下一步做什么?
 
-跳转到 [入门指南](../getting-started/) 中创建你的第一个索引。
+跳转到 [入门指南](../getting-started/) 中创建您的第一个索引。
 
 ### 在 Linux 中安装
 
@@ -208,7 +208,7 @@ Pilosa 目前支持 [MacOS](#installing-on-macos) 和 [Linux](#installing-on-lin
     tar xfz pilosa-v1.3.0-linux-amd64.tar.gz
     ```
 
-3. 将二进制文件移动到你的执行目录中，以便可以 `pilosa` 在任何地方运行：
+3. 将二进制文件移动到您的执行目录中，以便可以 `pilosa` 在任何地方运行：
     ```
     cp -i pilosa-v1.3.0-linux-amd64/pilosa /usr/local/bin
     ```
@@ -317,7 +317,7 @@ Pilosa 目前支持 [MacOS](#installing-on-macos) 和 [Linux](#installing-on-lin
 
 #### 下一步做什么?
 
-跳转到 [入门指南](../getting-started/) 中创建你的第一个索引。
+跳转到 [入门指南](../getting-started/) 中创建您的第一个索引。
 
 
 ### Windows

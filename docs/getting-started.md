@@ -234,4 +234,4 @@ curl localhost:10101/index/repository/query \
 ### 下一步是什么？
 
 下一步是什么？
-您可以跳转到[数据模型](../data-model/)以深入了解 Pilosa 的数据模型，或[Query Language](../query-language/)以获取有关 **PQL** （Pilosa Query Language）的更多详细信息。查看[示例](../examples/)了解 Pilosa 真实的示例实现。准备好用你最喜欢的语言？看看我们的小型但不断扩展的[官方客户端库](../client-libraries/)。
+您可以跳转到[数据模型](../data-model/)以深入了解 Pilosa 的数据模型，或[Query Language](../query-language/)以获取有关 **PQL** （Pilosa Query Language）的更多详细信息。查看[示例](../examples/)了解 Pilosa 真实的示例实现。准备好用您最喜欢的语言？看看我们的小型但不断扩展的[官方客户端库](../client-libraries/)。
