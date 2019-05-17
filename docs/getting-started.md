@@ -39,7 +39,7 @@ curl localhost:10101/status
 
 ### 例子
 
-为了更好地理解 Pilosa 的功能，我们将创建一个名为“Star Trace”的示例项目，其中包含有关1,000名流行的Github 项目，这些项目名称中包含“go”。Star Trace 索引将包括数据点，例如编程语言，标签和标星用户 - 已经为项目加星标的人。
+为了更好地理解 Pilosa 的功能，我们将创建一个名为“Star Trace”的示例项目，其中包含有关1,000名流行的Github 项目，这些项目名称中包含“go”。Star Trace 索引将包括数据点，例如编程语言，标签和点赞用户 - 已经为项目点赞的人。
 
 尽管 Pilosa 没有以表格格式保存数据，但在描述数据模型时我们仍然使用术语“columns（列）”和“rows（行）”（译注：以下全部翻译为列和行）。我们将主对象放在列中，并将这些对象的属性放在行中。例如，Star Trace 项目将包含一个名为“repository”的索引，其中包含表示Github项目的列，以及表示编程语言和标记等属性的行。我们可以通过将行分组为名为Fields的集合来更好地组织行。因此，“项目”索引可能具有“语言”字段以及“标记”字段。您可以在文档的“ [数据模型](../data-model/)”部分中了解有关索引和字段的更多信息。
 
@@ -76,7 +76,7 @@ curl localhost:10101/index/repository/field/stargazer \
 {"success":true}
 ```
 
-由于我们的数据包含时间戳，这些时间戳代表用户标星的时间，因此我们将字段类型设置为`time`。时间格式是我们想要使用的时间的分辨率，我们将其设置为`YMD`（年，月，日）`stargazer`。
+由于我们的数据包含时间戳，这些时间戳代表用户点赞的时间，因此我们将字段类型设置为`time`。时间格式是我们想要使用的时间的分辨率，我们将其设置为`YMD`（年，月，日）`stargazer`。
 
 接下来是`language`字段，用来存储编程语言的ID：
 ``` request
@@ -120,7 +120,7 @@ docker exec -it pilosa /pilosa import -i repository -f language /language.csv
 
 #### 查询
 
-有14个星的项目：
+有14个赞的项目：
 ``` request
 curl localhost:10101/index/repository/query \
      -X POST \
@@ -157,7 +157,7 @@ curl localhost:10101/index/repository/query \
 }
 ```
 
-用户14和19共同标星了哪些项目：
+用户14和19共同点赞了哪些项目：
 ``` request
 curl localhost:10101/index/repository/query \
      -X POST \
@@ -177,7 +177,7 @@ curl localhost:10101/index/repository/query \
 }
 ```
 
-用户14和19标星了哪些项目：
+用户14和19点赞了哪些项目：
 ``` request
 curl localhost:10101/index/repository/query \
      -X POST \
@@ -197,7 +197,7 @@ curl localhost:10101/index/repository/query \
 }
 ```
 
-哪些项目由用户14和19加星标，并且还用语言1编写：
+哪些项目由用户14和19点赞，并且还用语言1编写：
 ``` request
 curl localhost:10101/index/repository/query \
      -X POST \
@@ -217,7 +217,7 @@ curl localhost:10101/index/repository/query \
     ]
 }
 ```
-将用户99999为存储库77777的标星：
+将用户99999为存储库77777的点赞：
 ``` request
 curl localhost:10101/index/repository/query \
      -X POST \

@@ -1,5 +1,5 @@
 +++
-title = "Query Language"
+title = "查询语言"
 weight = 6
 nav = [
     "Conventions",
@@ -9,29 +9,30 @@ nav = [
 ]
 +++
 
-## Query Language
+## 查询语言
 
-### Overview
+### 简介
 
-This section will provide a detailed reference and examples for the Pilosa Query Language (PQL). All PQL queries operate on a single [index](../glossary/#index) and are passed to Pilosa through the `/index/INDEX_NAME/query` endpoint. You may pass multiple PQL queries in a single request by simply concatenating the queries together - a space is not needed. The results format is always:
+本节将提供Pilosa查询语言（PQL）的详细参考和示例. 所有PQL查询都在单个[索引](../glossary/#index)上运行，并通过 `/index/INDEX_NAME/query` 接口传输给 Pilosa. 
+您可以通过简单地将查询连接在一起来在单个请求中传递多个PQL查询（不需要空格）。结果格式始终如下：
 
 ```
 {"results":[...]}
 ```
 
-There will be one item in the `results` array for each PQL query in the request. The type of each item in the array will depend on the type of query - each query in the reference below lists its result type.
+对于请求中的每个PQL查询，`results` 数组中将有一个结果。数组中每个项的类型取决于查询的类型，下面引用中的每个查询都列出了它的结果类型。
 
-#### Conventions
+#### 约定
 
-* Angle Brackets `<>` denote required arguments
-* Square Brackets `[]` denote optional arguments
-* UPPER_CASE denotes a descriptor that will need to be filled in with a concrete value (e.g. `ATTR_NAME`, `STRING`)
+* Angle Brackets `<>` 表示必需的参数
+* Square Brackets `[]` 表示可选参数
+* UPPER_CASE 表示的描述符，将需要用一个具体数值来填充（例如: `ATTR_NAME`，`STRING`）
 
-##### Examples
+##### 例子
 
-Before running any of the example queries below, follow the instructions in the [Getting Started](../getting-started/) section to set up an index and fields, and to populate them with some data.
+在运行下面的任何示例查询之前，请按照[入门指南](../getting-started/)部分中的说明设置索引和字段，并使用一些数据填充它们。
 
-The examples just show the PQL quer(ies) needed - to run the query `Set(10, stargazer=1)` against a server using curl, you would:
+这些示例只显示了所需的PQL查询 - `Set(10, stargazer=1)`使用 curl 对服务器运行查询，您将：
 ``` request
 curl localhost:10101/index/repository/query \
      -X POST \
@@ -41,21 +42,21 @@ curl localhost:10101/index/repository/query \
 {"results":[true]}
 ```
 
-#### Arguments and Types
+#### 参数和类型
 
-* `field` The field specifies on which Pilosa [field](../glossary/#field) the query will operate. Valid field names are lower case strings; they start with a lowercase letter, and contain only alphanumeric characters and `_-`. They must be 64 characters or less in length.
-* `TIMESTAMP` This is a timestamp in the following format `YYYY-MM-DDTHH:MM` (e.g. 2006-01-02T15:04)
-* `UINT` An unsigned integer (e.g. 42839)
-* `BOOL` A boolean value, `true` or `false`
-* `ATTR_NAME` Must be a valid identifier `[A-Za-z][A-Za-z0-9._-]*`
-* `ATTR_VALUE` Can be a string, float, integer, or bool.
-* `CALL` Any query
-* `ROW_CALL` Any query which returns a row, such as `Row`, `Union`, `Difference`, `Xor`, `Intersect`, `Not`
-* `[]ATTR_VALUE` Denotes an array of `ATTR_VALUE`s. (e.g. `["a", "b", "c"]`)
+* `field` 该字段指定查询将在哪个 Pilosa [字段](../glossary/#field) 运行。有效字段名称是小写字符串; 它们以字母数字字符开头，仅包含字母数字字符和`_-`。它们的长度不得超过64个字符。
+* `TIMESTAMP` 这是以下格式的时间 `YYYY-MM-DDTHH:MM` (例如：2006-01-02T15:04)
+* `UINT` 无符号整数 (例如：42839)
+* `BOOL` 布尔值, `true` 或 `false`
+* `ATTR_NAME` 必须是有效的标识符 `[A-Za-z][A-Za-z0-9._-]*`
+* `ATTR_VALUE` 可以是字符串，浮点数，整数或布尔值
+* `CALL` 任何查询
+* `ROW_CALL` 任何查询返回的行，如 `Row`, `Union`, `Difference`, `Xor`, `Intersect`, `Not`
+* `[]ATTR_VALUE` 表示一组 `ATTR_VALUE` (例如：`["a", "b", "c"]`)
 
-### Write Operations
+### 写操作
 
-#### Set
+#### 集合 Set
 
 **Spec:**
 
@@ -65,28 +66,32 @@ Set(<COLUMN>, <FIELD>=<ROW>, [TIMESTAMP])
 
 **Description:**
 
-`Set` assigns a value of 1 to a bit in the binary matrix, thus associating the given row (the `<ROW>` value) in the given field with the given column.
+`Set` 将值1赋给二进制矩阵中的一个位，从而将给`<ROW>`定字段中给定的行（值）与给定的列相关联。
 
 <div class="note">
-    <p>While using "Set" in PQL is a convenient way to get familiar with Pilosa, it's almost always better to use the import functionality in the <a href="https://github.com/pilosa/go-pilosa/blob/master/docs/imports-exports.md">Go</a>, <a href="https://github.com/pilosa/java-pilosa/blob/master/docs/imports.md">Java</a>, and <a href="https://github.com/pilosa/python-pilosa/tree/master/docs/imports.md">Python</a> clients to ingest lots of data. </p>
+    <p>虽然在PQL中使用“Set”是熟悉Pilosa的一种便捷方式，但使用<a href="https://github.com/pilosa/go-pilosa/blob/master/docs/imports-exports.md">Go</a>，<a href="https://github.com/pilosa/java-pilosa/blob/master/docs/imports.md">Java</a>和<a href="https://github.com/pilosa/python-pilosa/tree/master/docs/imports.md">Python</a>客户端中的导入功能来获取大量数据几乎总是更好。</p>
 </div>
 
 **Result Type:** boolean
 
-A return value of `true` indicates that the bit was changed to 1.
+返回值`true`表示该位已更改为1。
 
-A return value of `false` indicates that the bit was already set to 1 and nothing changed.
+返回值`false`表示该位已设置为1且未更改。
 
 
 **Examples:**
 
-Set the bit at row 1, column 10:
+设置第1行第10列的位：
 ```request
 Set(10, stargazer=1)
 ```
 ```response
 {"results":[true]}
 ```
+
+这在 stargazer 字段中设置了一个位，表示 id=1 的用户为项目 id=10 点赞。
+
+Set还支持提供时间戳。要编写用户为项目点赞的日期：
 
 This sets a bit in the stargazer field, representing that the user with id=1 has starred the repository with id=10.
 
@@ -320,7 +325,7 @@ Row(<FIELD>=<ROW>)
 
 **Result Type:** object with attrs and columns.
 
-e.g. `{"attrs":{"username":"mrpi","active":true},"columns":[10, 20]}`
+例如：`{"attrs":{"username":"mrpi","active":true},"columns":[10, 20]}`
 
 **Examples:**
 
@@ -872,7 +877,7 @@ GroupBy returns the count of the intersection of every combination of rows
 taking one row each from the specified `Rows` calls. It returns only those
 combinations for which the count is greater than 0.
 
-The optional `filter` argument takes any type of `Row` query (e.g. Row, Union,
+The optional `filter` argument takes any type of `Row` query (例如：Row, Union,
  Intersect, etc.) which will be intersected with each result prior to returning
  the count. This is analagous to a WHERE clause applied to a relational GROUP BY
  query.
