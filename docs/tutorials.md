@@ -1,39 +1,39 @@
 +++
-title = "Tutorials"
+title = "教程"
 weight = 4
 nav = [
-    "Setting Up a Secure Cluster",
-    "Setting Up a Docker Cluster",
-    "Using Integer Field Values",
-    "Storing Row and Column Attributes",
+    "设置安全集群",
+    "设置 Docker 群集",
+    "使用整数字段值",
+    "存储行和列属性",
 ]
 +++
 
-## Tutorials
+## 教程
 
 <div class="note">
 <!-- this is html because there is a problem putting a list inside a shortcode -->
-Some of our tutorials work better as standalone repos, since you can <code>git clone</code> the instructions, code, and data all at once. Officially supported tutorials are listed here.<br />
+我们的一些教程作为独立的 repos 更好地工作，因为您可以同时`git clone`获得教程，代码和数据。这里列出了官方支持的教程。<br />
 <br />
 <ul>
-<li><a href="https://github.com/pilosa/cosmosa">Run Pilosa with Microsoft's Azure Cosmos DB</a></li>
+<li><a href="https://github.com/pilosa/cosmosa">使用 Microsoft 的 Azure Cosmos DB 运行 Pilosa </a></li>
 </ul>
 
 </div>
 
-### Setting Up a Secure Cluster
+### 设置安全群集
 
-#### Introduction
+#### 介绍
 
-Pilosa supports encrypting all communication with nodes in a cluster using TLS. In this tutorial, we will be setting up a three node Pilosa cluster running on the same computer. The same steps can be used for a multi-computer cluster but that requires setting up firewalls and other platform-specific configuration which is beyond the scope of this tutorial.
+Pilosa 支持使用TLS加密与集群中节点的所有通信。在本教程中，我们将设置在同一台计算机上运行的三节点 Pilosa 集群。相同的步骤可用于多计算机群集，但这需要设置防火墙和其他特定于平台的配置，这超出了本教程的范围。
 
-This tutorial assumes that you are using a UNIX-like system, such as Linux or MacOS. [Windows Subsystem for Linux (WSL)](https://msdn.microsoft.com/en-us/commandline/wsl/about) works equally well on Windows 10 systems.
+本教程假定您使用的是类UNIX系统，例如 Linux 或 MacOS。也能在 Windows 10 系统上的[Windows子系统Linux（WSL）](https://msdn.microsoft.com/en-us/commandline/wsl/about) 运行成功。
 
-#### Installing Pilosa and Creating the Directory Structure
+#### 安装 Pilosa 并创建目录结构
 
-If you haven't already done so, install Pilosa server on your computer. For Linux and WSL (Windows Subsystem for Linux) use the [Installing on Linux](../installation/#installing-on-linux) instructions. For MacOS use the [Installing on MacOS](../installation/#installing-on-macos). We do not support precompiled releases for other platforms, but you can always compile it yourself from source. See [Build from Source](../installation/#build-from-source).
+如果您还没有开始，请在您的计算机上安装 Pilosa。对于 Linux 和 WSL（适用于Linux的Windows子系统），请参照[在Linux上安装](../installation/#installing-on-linux)说明。对于 MacOS，请参照[在MacOS上的安装](../installation/#installing-on-macos)。我们不支持其他平台的预编译版本，但您始终可以从源代码自行编译。请参阅[从源代码构建](../installation/#build-from-source)。
 
-After installing Pilosa, you may have to add it to your `$PATH`. Check that you can run Pilosa from the command line:
+安装 Pilosa 后，您可能需要将其添加到您的`$PATH`。检查您是否可以从命令行运行 Pilosa：
 ``` request
 pilosa --help
 ```
@@ -68,43 +68,44 @@ Flags:
 Use "pilosa [command] --help" for more information about a command.
 ```
 
-First, create a directory in which to put all of the files for this tutorial. Then switch to that directory:
+首先，创建一个目录，用于存放本教程的所有文件。然后切换到该目录：
+
 ```
 mkdir $HOME/pilosa-tls-tutorial && cd $_
 ```
 
-#### Creating the TLS Certificate and Gossip Key
+#### 创建 TLS 证书和 Gossip 密钥
 
-Securing a Pilosa cluster consists of securing the communication between nodes using TLS and Gossip encryption. [Pilosa Enterprise](https://www.pilosa.com/enterprise/) additionally supports authentication and other security features, but those are not covered in this tutorial.
+保护 Pilosa 集群包括使用 TLS 和 Gossip 加密保护节点之间的通信。[Pilosa Enterprise](https://www.pilosa.com/enterprise/) 还支持身份验证和其他安全功能，但本教程不涉及这些功能。
 
-The first step is acquiring an SSL certificate. You can buy a commercial certificate or retrieve a [Let's Encrypt](https://letsencrypt.org/) certificate, but we will be using a self signed certificate for practical reasons. Using self-signed certificates is not recommended in production since it makes man-in-the-middle attacks easy.
+第一步是获取 SSL 证书。您可以购买商业证书或使用免费加密证书[Let's Encrypt](https://letsencrypt.org/) ，但出于实际原因，我们将使用自签名证书。不建议在生产中使用自签名证书，因为它容易被发起中间人攻击。
 
-The following command creates a 2048-bit, self-signed wildcard certificate for `*.pilosa.local` which expires 10 years later.
+以下命令将创建一个2048位自签名通配符证书，`*.pilosa.local`该证书将在10年后过期。
 
 ```
 openssl req -x509 -newkey rsa:2048 -keyout pilosa.local.key -out pilosa.local.crt -days 3650 -nodes -subj "/C=US/ST=Texas/L=Austin/O=Pilosa/OU=Com/CN=*.pilosa.local"
 ```
 
-The command above creates two files in the current directory:
+上面的命令在当前目录中创建了两个文件：
 
-* `pilosa.local.crt` is the SSL certificate.
-* `pilosa.local.key` is the private key file which must be kept as secret.
+* `pilosa.local.crt` 是SSL证书。
+* `pilosa.local.key` 是私钥文件，必须保密。
 
-Having created the SSL certificate, we can now create the gossip encryption key. The gossip encryption key file must be exactly 16, 24, or 32 bytes to select one of AES-128, AES-192, or AES-256 encryption. Reading random bytes from cryptographically secure `/dev/random` serves our purpose very well:
+创建 SSL 证书后，我们现在可以创建 Gossip 加密密钥。Gossip 加密密钥文件必须精确为16,24或32字节，以选择 AES-128，AES-192 或 AES-256 加密之一。从可靠的随机生成器`/dev/random`中获取非常符合我们的要求：
 ```
 head -c 32 /dev/random > pilosa.local.gossip32
 ```
 
-We now have a file called `pilosa.local.gossip32` in the current directory which contains 32 random bytes.
+在当前目录中我们生成一个`pilosa.local.gossip32`文件，其中包含32个随机字节。
 
-#### Creating the Configuration Files
 
-Pilosa supports passing configuration items using command line options, environment variables, or a configuration file. For this tutorial, we will use three configuration files; one configuration file for each of our three nodes.
+#### 创建配置文件
 
-One of the nodes in the cluster must be chosen as the *coordinator*. We choose the first node as the coordinator in this tutorial. The coordinator is only important during cluster resizing operations, and otherwise acts like any other node in the cluster. In the future, the coordinator will be chosen transparently by distributed consensus, and this option will be deprecated.
+Pilosa 支持使用命令行选项，环境变量或配置文件传递配置项。在本教程中，我们将使用三个配置文件; 我们三个节点中的每一个都有一个配置文件。
 
-Create `node1.config.toml` in the project directory and paste the following in it:
+必须选择群集中的一个节点作为*协调员*（coordinator）。我们在本教程中选择第一个节点作为协调员。协调员仅在群集大小调整操作期间很重要，否则就像群集中的任何其他节点一样。协调员可以通过分布式共识算法自动选择，并不推荐线上使用这个选项。
 
+在项目目录中创建 `node1.config.toml`并粘贴以下内容：
 ```toml
 # node1.config.toml
 
@@ -125,8 +126,7 @@ port = 15000
 key = "pilosa.local.gossip32"
 ```
 
-Create `node2.config.toml` in the project directory and paste the following in it:
-
+在项目目录中创建 `node2.config.toml`并粘贴以下内容：
 ```toml
 # node2.config.toml
 
@@ -144,8 +144,7 @@ port = 16000
 key = "pilosa.local.gossip32"
 ```
 
-Create `node3.config.toml` in the project directory and paste the following in it:
-
+在项目目录中创建 `node3.config.toml`并粘贴以下内容：
 ```toml
 # node3.config.toml
 
@@ -163,67 +162,66 @@ port = 17000
 key = "pilosa.local.gossip32"
 ```
 
-Here is some explanation of the configuration items:
+以下是配置项的一些说明：
 
-* `data-dir` points to the directory where the Pilosa server writes its data. If it doesn't exist, the server will create it.
-* `bind` is the address to which the server listens for incoming requests. The address is composed of three parts: scheme, host, and port. The default scheme is `http` so we explicitly specify `https` to use the HTTPS protocol for communication between nodes.
-* `[cluster]` section contains the settings for a cluster. We set `coordinator = true` for only the first node to choose that as the coordinator node. See [Cluster Configuration](../configuration/#cluster-coordinator) for other settings.
-* `[tls]` section contains the TLS settings, including the path to the SSL certificate and the corresponding key. Set `skip-verify` to `true` in order to disable host name verification and other security measures. Do not set `skip-verify` to `true` on production servers.
-* `[gossip]` section contains settings for the gossip protocol. `seeds` contains the list of nodes from which to seed cluster membership. There must be at least one gossip seed. The `port` setting is the gossip listen address for the node. If all nodes of the cluster are running on the same computer, the gossip listen address should be different for each node. Otherwise, it can be set to the same value. Finally, the `key` points to the gossip encryption key we created earlier.
+* `data-dir`指向 Pilosa 服务写入数据的目录。如果它不存在，服务器将创建它。
+* `bind`是服务器侦听传入请求的地址。地址由三部分组成：协议类型，主机和端口。默认方案是`http`，请明确指定`https`以便使用 HTTPS 协议进行节点之间的通信。
+* `[集群]`包含群集的设置。我们只设置第一个节点`coordinator=true`来选择它作为协调节点。访问[群集配置](../configuration/#cluster-coordinator)查看其他设置。
+* `[tls]` 包含 TLS 设置，包括 SSL 证书的路径和相应的密钥。设置`skip-verify=true`禁用主机名验证和其他安全措施。不要在生产服务器上设置`skip-verify=true`。
+* `[gossip]`包含 Gossip 协议的设置。`seeds`包含从中为群集成员资格设定种子的节点列表。必须至少有一个 Gossip 种子。该`port`设置是节点的Gossip监听地址。如果群集的所有节点都在同一台计算机上运行，​​则每个节点的 Gossip 监听地址应该不同。否则，可以将其设置为相同的值。最后，`key`是我们之前创建的 Gossip 加密密钥。
 
-#### Final Touches Before Running the Cluster
+#### 运行群集前的准备
 
-Before running the cluster, let's make sure that `01.pilosa.local`, `02.pilosa.local` and `03.pilosa.local` resolve to an IP address. If you are running the cluster on your computer, it is adequate to add them to your `/etc/hosts`. Below is one of the many ways of doing that (mind the `>>`):
+运行群集之前，让我们确保`01.pilosa.local`，`02.pilosa.local`和`03.pilosa.local`解析为 IP 地址。如果您在计算机上运行群集，则将其添加到您的计算机`/etc/hosts`配置中。以下是执行此操作的众多方法之一（请注意“>>”）：
 ```
 sudo sh -c 'printf "\n127.0.0.1 01.pilosa.local 02.pilosa.local 03.pilosa.local\n" >> /etc/hosts'
 ```
 
-Ensure we can access the hosts in the cluster:
+确保我们可以访问群集中的主机：
 ```
 ping -c 1 01.pilosa.local
 ping -c 1 02.pilosa.local
 ping -c 1 03.pilosa.local
 ```
 
-If any of the commands above return `ping: unknown host`, make sure your `/etc/hosts` contains the failed hostname.
+如果上述任何命令返回`ping: unknown host`，请确保`/etc/hosts`包含报错的主机名。
 
-#### Running the Cluster
+#### 运行群集
 
-Let's open three terminal windows and run each node in its own window. This will enable us to better observe what's happening on each node.
+让我们打开三个终端窗口并在各自的窗口中运行每个节点。这将使我们能够更好地观察每个节点上发生的事情。
 
-Switch to the first terminal window, change to the project directory and start the first node:
+切换到第一个终端窗口，切换到项目目录并启动第一个节点：
 ```
 cd $HOME/pilosa-tls-tutorial
 pilosa server -c node1.config.toml
 ```
 
-Switch to the second terminal window, change to the project directory and start the second node:
+切换到第二个终端窗口，切换到项目目录并启动第二个节点：
 ```
 cd $HOME/pilosa-tls-tutorial
 pilosa server -c node2.config.toml
 ```
 
-Switch to the third terminal window, change to the project directory and start the third node:
+切换到第三个终端窗口，切换到项目目录并启动第三个节点：
 ```
 cd $HOME/pilosa-tls-tutorial
 pilosa server -c node3.config.toml
 ```
 
-Let's ensure that all three Pilosa servers are running and they are connected:
+让我们确保所有三个 Pilosa 服务都在运行并且它们已连接：
 ``` request
 curl -k --ipv4 https://01.pilosa.local:10501/status
 ```
 ``` response
 {"state":"NORMAL","nodes":[{"id":"98ebd177-c082-4c54-8d48-7e7c75857b52","uri":{"scheme":"https","host":"02.pilosa.local","port":10502},"isCoordinator":false},{"id":"a33dc0d6-c35f-4559-984a-e582bf032a21","uri":{"scheme":"https","host":"03.pilosa.local","port":10503},"isCoordinator":false},{"id":"e24ac014-ee2f-4cb0-b565-74df6c551f0a","uri":{"scheme":"https","host":"01.pilosa.local","port":10501},"isCoordinator":true}]}
 ```
+`-k`标志用于告诉 curl 忽略服务器提供的证书，并且`--ipv4`标志避免了 curl 在 MacOS 解析`127.0.0.1` 需要很长时间的问题。你可以在 Linux 和 WSL 上使用它们。
 
-The `-k` flag is used to tell curl that it shouldn't bother checking the certificate the server provides, and the `--ipv4` flag avoids an issue on MacOS where the curl request takes a long time if the address resolves to `127.0.0.1`. You can leave it out on Linux and WSL.
+如果一切都设置正确，群集状态应该是`NORMAL`。
 
-If everything is set up correctly, the cluster state should be `NORMAL`.
+#### 开始查询
 
-#### Running Queries
-
-Having confirmed that our cluster is running normally, let's perform a few queries. First, we need to create an index and a field:
+确认我们的集群正常运行后，让我们执行一些查询。首先，我们需要创建一个索引和一个字段：
 ``` request
 curl https://01.pilosa.local:10501/index/sample-index \
      -k --ipv4 \
@@ -233,7 +231,7 @@ curl https://01.pilosa.local:10501/index/sample-index \
 {"success":true}
 ```
 
-This will create index `sample-index` with default options. Let's create the field now:
+这将`sample-index`使用默认选项创建索引。我们现在创建该字段：
 ``` request
 curl https://01.pilosa.local:10501/index/sample-index/field/sample-field \
      -k --ipv4 \
@@ -243,9 +241,8 @@ curl https://01.pilosa.local:10501/index/sample-index/field/sample-field \
 {"success":true}
 ```
 
-We just created field `sample-field` with default options.
-
-Let's run a `Set` query:
+我们刚刚使用默认选项创建了字段`sample-field`。
+让我们运行一个`Set`查询：
 ``` request
 curl https://01.pilosa.local:10501/index/sample-index/query \
      -k --ipv4 \
@@ -256,7 +253,7 @@ curl https://01.pilosa.local:10501/index/sample-index/query \
 {"results":[true]}
 ```
 
-Confirm that the value was indeed set:
+确认该值确实设置成功：
 ``` request
 curl https://01.pilosa.local:10501/index/sample-index/query \
      -k --ipv4 \
@@ -267,7 +264,7 @@ curl https://01.pilosa.local:10501/index/sample-index/query \
 {"results":[{"attrs":{},"columns":[100]}]}
 ```
 
-The same response should be returned when querying other nodes in the cluster:
+查询集群中的其他节点时，应返回相同的结果：
 ``` request
 curl https://02.pilosa.local:10501/index/sample-index/query \
      -k --ipv4 \
@@ -278,40 +275,40 @@ curl https://02.pilosa.local:10501/index/sample-index/query \
 {"results":[{"attrs":{},"columns":[100]}]}
 ```
 
-#### What's Next?
+#### 下一步是什么？
 
-Check out our [Administration Guide](https://www.pilosa.com/docs/latest/administration/) to learn more about making the most of your Pilosa cluster and [Configuration Documentation](https://www.pilosa.com/docs/latest/configuration/) to see the available options to configure Pilosa.
+查看我们的[管理指南](https://www.pilosa.com/docs/latest/administration/)了解 Pilosa 集群相关配置，使用[配置文档](https://www.pilosa.com/docs/latest/configuration/) 了解如何配置 Pilosa。
 
-### Setting Up a Docker Cluster
+### 设置 Docker 群集
 
-In this tutorial, we will be setting up a 2-node Pilosa cluster using Docker containers.
+在本教程中，我们将使用 Docker 容器设置一个双节点 Pilosa 集群。
 
-#### Running a Docker Cluster on a Single Server
+#### 在单个服务器上运行Docker群集
 
-The instructions below require Docker 1.13 or better.
+以下内容需要 Docker 1.13 或更高版本。
 
-Let's first be sure that the Pilosa image is up to date:
+让我们首先确保 Pilosa 镜像是最新的：
 ```
 docker pull pilosa/pilosa:latest
 ```
 
-Then, create a virtual network to attach our containers. We are going to name our network `pilosanet`:
+然后，创建一个虚拟网络来附加我们的容器。我们将命名我们的网络`pilosanet`:
 
 ```
 docker network create pilosanet
 ```
 
-Let's run the first Pilosa node and attach it to that virtual network. We set the first node as the cluster coordinator and use its address as the gossip seed. And also set the server address to `pilosa1`:
+让我们运行第一个 Pilosa 节点并将其连接到该虚拟网络。我们将第一个节点设置为集群协调员，并将其地址用作 gossip 种子。并将服务器地址设置为`pilosa1`：
 ```
-docker run -it --rm --name pilosa1 -p 10101:10101 --network=pilosanet pilosa/pilosa:latest server --bind pilosa1 --cluster.coordinator=true --gossip.seeds=pilosa1:14000
-```
-
-Let's run the second Pilosa node and attach it to the virtual network as well. Note that we set the address of the gossip seed to the address of the first node:
-```
-docker run -it --rm --name pilosa2 -p 10102:10101 --network=pilosanet pilosa/pilosa:latest server --bind pilosa2 --gossip.seeds=pilosa1:14000
+docker run -it --rm --name pilosa1 -p 10101:10101 --network=pilosanet pilosa/pilosa:latest server --bind pilosa1:10101 --cluster.coordinator=true --gossip.seeds=pilosa1:14000
 ```
 
-Let's test that the nodes in the cluster connected with each other:
+让我们运行第二个 Pilosa 节点并将其连接到虚拟网络。请注意，我们将 gossip 种子的地址设置为第一个节点的地址：
+```
+docker run -it --rm --name pilosa2 -p 10102:10101 --network=pilosanet pilosa/pilosa:latest server --bind pilosa2:10101 --gossip.seeds=pilosa1:14000
+```
+
+让我们测试集群中的节点是否连接正常：
 ``` request
 curl localhost:10101/status
 ```
@@ -319,15 +316,15 @@ curl localhost:10101/status
 {"state":"NORMAL","nodes":[{"id":"2e8332d0-1fee-44dd-a359-e0d6ecbcefc1","uri":{"scheme":"http","host":"pilosa1","port":10101},"isCoordinator":true},{"id":"8c0dbcdc-9503-4265-8ad2-ba85a4bb10fa","uri":{"scheme":"http","host":"pilosa2","port":10101},"isCoordinator":false}],"localID":"2e8332d0-1fee-44dd-a359-e0d6ecbcefc1"}
 ```
 
-And similarly for the second node:
+对于第二个节点也类似：
 ``` request
 curl localhost:10102/status
 ```
 ``` response
 {"state":"NORMAL","nodes":[{"id":"2e8332d0-1fee-44dd-a359-e0d6ecbcefc1","uri":{"scheme":"http","host":"pilosa1","port":10101},"isCoordinator":true},{"id":"8c0dbcdc-9503-4265-8ad2-ba85a4bb10fa","uri":{"scheme":"http","host":"pilosa2","port":10101},"isCoordinator":false}],"localID":"2e8332d0-1fee-44dd-a359-e0d6ecbcefc1"}
 ```
-The corresponding [Docker Compose](https://docs.docker.com/compose/) file is below:
 
+相应的[Docker Compose](https://docs.docker.com/compose/)文件如下：
 ```yaml
 version: '2'
 services: 
@@ -362,68 +359,69 @@ networks:
   pilosanet:
 ```
 
-#### Running a Docker Swarm
+#### 运行 Docker Swarm
 
-It is very easy to run a Pilosa Cluster on different servers using [Docker Swarm mode](https://docs.docker.com/engine/swarm/). All we have to do is create an overlay network instead of a bridge network.
+使用`Docker Swarm`模式在不同的服务器上运行Pilosa Cluster非常容易。我们所要做的就是创建一个覆盖网络而不是桥接网络。
 
-The instructions in this section require Docker 17.06 or newer. Although it is possible to run a Docker swarm on MacOS or Windows, it is easiest to run it on Linux. The following instructions assume you are running on Linux.
+本节中的说明需要 Docker 17.06 或更高版本。虽然可以在 MacOS 或 Windows 上运行 Docker swarm，但最简单的方法是在 Linux 上运行它。以下假设您在 Linux 上运行。
 
-We are going to use two servers: the manager node runs in the first server and a worker node in the second server.
+我们将使用两个服务：管理节点在第一个服务中运行，一个工作节点在第二个服务中运行。
 
-Docker nodes require some ports to be accesible from the outside. Before proceeding, make sure the following ports are open on all nodes: TCP/2377, TCP/7946, UDP/7946, UDP/4789.
+Docker 节点需要从外部访问某些端口。在继续之前，请确保在所有节点上打开以下端口：TCP/2377，TCP/7946，UDP/7946，UDP/4789。
 
-Let's initialize the swarm first. Run the following on the manager:
+让我们先初始化群。在管理节点上运行以下命令：
 ```
 docker swarm init --advertise-addr=IP-ADDRESS
 ```
 
-Virtual machines running on the cloud usually have at least two network interfaces: the external interface and the internal interface. Use the IP of the external interface.
+在云上运行的虚拟机通常至少有两个IP：外部IP和内部IP。使用外部接口的IP。
 
-The output of the command above should be similar to:
+上面命令的输出应类似于：
 ```
 To add a manager to this swarm, run the following command:
 
     docker swarm join --token SOME-TOKEN MANAGER-IP-ADDRESS:2377
 ```
 
-Let's make the worker node join the manager. Copy/paste the command above in a shell on the worker, replacing the token and IP address with the correct values. You may neeed to add `--advertise-addr=WORKER-EXTERNAL-IP-ADDRESS` parameter if the worker has more than one network interface:
+让工作节点加入管理节点。将上面的命令复制/粘贴到 worker 的终端中，用正确的值替换 token 和IP地址。`--advertise-addr=WORKER-EXTERNAL-IP-ADDRESS`如果 worker 有多个IP，您可能需要添加参数：
 ```
 docker swarm join --token SOME-TOKEN MANAGER-IP-ADDRESS:2377
 ```
 
-Run the following on the manager to check that the worker joined to the swarm:
+在管理节点上运行以下命令以检查 worker 是否已加入 swarm：
 ```
 docker node ls
 ```
 
-Which should output:
+哪个应该输出：
 
-ID|HOSTNAME|STATUS|AVAILABILITY|MANAGER STATUS|ENGINE VERSION
+ID|主机名|状态|可用性|管理状态|内核版本
 ---|--------|------|------------|--------------|-------------
 MANAGER-ID *|swarm1|Ready|Active|Leader|18.05.0-ce|
 WORKER-ID|swarm2|Ready|Active||18.05.0-ce|
 
-If you have created the `pilosanet` network before, delete it before carrying on, otherwise skip to the next step:
+如果您`pilosanet`之前已创建过网络，请在继续之前将其删除，否则请跳至下一步：
+
 ```
 docker network rm pilosanet
 ```
 
-Let's create the `pilosanet` network, but with `overlay` type this time. We should also make this network attachable in order to be able to attach containers to it. Run the following on the manager:
+让我们创建`pilosanet`网络，但`overlay`这次是类型。我们还应该使这个网络可连接，以便能够将容器连接到它。在管理节点上运行以下命令：
 ```
 docker network create -d overlay pilosanet --attachable
 ```
 
-We can now create the Pilosa containers. Let's start the coordinator node first. Run the following on one of the servers:
+我们现在可以创建 Pilosa 容器了。让我们先启动协调员节点。在其中一台服务器上运行以下命令：
 ```
-docker run -it --rm --name pilosa1 --network=pilosanet pilosa/pilosa:latest server --bind pilosa1 --cluster.coordinator=true --gossip.seeds=pilosa1:14000
-```
-
-And the following on the other server:
-```
-docker run -it --rm --name pilosa2 --network=pilosanet pilosa/pilosa:latest server --bind pilosa2 --gossip.seeds=pilosa1:14000
+docker run -it --rm --name pilosa1 --network=pilosanet pilosa/pilosa:latest server --bind pilosa1:10101 --cluster.coordinator=true --gossip.seeds=pilosa1:14000
 ```
 
-These were the same commands we used in the previous section except the port mapping! Let's run another container on the same virtual network to read the status from the coordinator:
+以下是另一台服务器：
+```
+docker run -it --rm --name pilosa2 --network=pilosanet pilosa/pilosa:latest server --bind pilosa2:10101 --gossip.seeds=pilosa1:14000
+```
+
+这些是我们在上一节中使用的相同命令，但端口映射除外！让我们在同一个虚拟网络上运行另一个容器来从协调员中读取状态：
 ``` request
 docker run -it --rm --network=pilosanet --name shell alpine wget -q -O- pilosa1:10101/status
 ```
@@ -431,22 +429,21 @@ docker run -it --rm --network=pilosanet --name shell alpine wget -q -O- pilosa1:
 {"state":"NORMAL","nodes":[{"id":"3e3b0abd-1945-441a-a01f-5a28272972f5","uri":{"scheme":"http","host":"pilosa1","port":10101},"isCoordinator":true},{"id":"71ed27cc-9443-4f41-88fb-1c22f92bf695","uri":{"scheme":"http","host":"pilosa2","port":10101},"isCoordinator":false}],"localID":"3e3b0abd-1945-441a-a01f-5a28272972f5"}
 ```
 
-You can add additional worker nodes to both the swarm and the Pilosa cluster using the steps above.
+您可以使用上述步骤向群集和 Pilosa 群集添加其他工作节点。
 
-#### What's Next?
+#### 下一步是什么？
 
-Check out our [Administration Guide](https://www.pilosa.com/docs/latest/administration/) to learn more about making the most of your Pilosa cluster and [Configuration Documentation](https://www.pilosa.com/docs/latest/configuration/) to see the available options to configure Pilosa.
+查看我们的[管理指南](https://www.pilosa.com/docs/latest/administration/)了解 Pilosa 集群相关配置，使用[配置文档](https://www.pilosa.com/docs/latest/configuration/) 了解如何配置 Pilosa。
 
-Refer to the [Docker documentation](https://docs.docker.com) to see your options about running Docker containers. The [Networking with overlay networks](https://docs.docker.com/network/network-tutorial-overlay/) is a detailed overview of the Docket swarm mode and overlay networks.
+请参考[Docker 文档](https://docs.docker.com)以查看有关 Docker 容器运行的选项。在与[覆盖网络组网](https://docs.docker.com/network/network-tutorial-overlay/)是 Docker swarm mode 和 overlay networks 的详细概述。
 
+### 使用整数字段值
 
-### Using Integer Field Values
+#### 介绍
 
-#### Introduction
+Pilosa 可以存储相关联的索引中的列的整数值，并且这些值将被用来支持`Row`，`Min`，`Max`，和`Sum`查询。在本教程中，我们将展示如何设置整数字段，使用数据填充这些字段以及查询字段。我们要创建的示例索引将代表医疗机构中的虚构患者以及有关这些患者的各种信息。
 
-Pilosa can store integer values associated to the columns in an index, and those values are used to support `Row`, `Min`, `Max`, and `Sum` queries. In this tutorial we will show how to set up integer fields, populate those fields with data, and query the fields. The example index we're going to create will represent fictional patients at a medical facility and various bits of information about those patients.
-
-First, create an index called `patients`:
+首先，创建一个叫`patients`的索引：
 ``` request
 curl localhost:10101/index/patients \
      -X POST 
@@ -455,7 +452,7 @@ curl localhost:10101/index/patients \
 {"success":true}
 ```
 
-In addition to storing rows of bits, a field can also store integer values. The next steps creates three fields (`age`, `weight`, `tcells`) in the `patients` index.
+除了存储位行之外，字段还可以存储整数值。接下来的步骤创建三个字段(`age`, `weight`, `tcells`)的`patients`索引。
 ``` request
 curl localhost:10101/index/patients/field/age \
      -X POST \
@@ -483,9 +480,9 @@ curl localhost:10101/index/patients/field/tcells \
 {"success":true}
 ```
 
-Next, let's populate our fields with data. There are two ways to get data into fields: use the `Set()` PQL function to set fields individually, or use the `pilosa import` command to import many values at once. First, let's set some field data using PQL.
+接下来，让我们用数据填充我们的字段。有两种方法可以将数据输入到字段中：使用`Set()` PQL 函数单独设置字段，或使用`pilosa import`命令一次导入多个值。首先，让我们使用 PQL 设置一些字段数据。
 
-The following queries set the age, weight, and t-cell count for the patient with ID `1` in our system:
+以下查询我们系统中为患者1设置年龄，体重和T细胞计数：
 ``` request
 curl localhost:10101/index/patients/query \
      -X POST \
@@ -513,9 +510,9 @@ curl localhost:10101/index/patients/query \
 {"results":[true]}
 ```
 
-In the case where we need to load a lot of data at once, we can use the `pilosa import` command. This method lets us import data into Pilosa from a CSV file.
+在我们需要一次加载大量数据的情况下，我们可以使用该`pilosa import`命令。此方法允许我们从 CSV 文件将数据导入 Pilosa。
 
-Assuming we have a file called `ages.csv` that is structured like this:
+假设我们有一个名为`ages.csv`的结构文件：
 ```
 1,34
 2,57
@@ -527,14 +524,16 @@ Assuming we have a file called `ages.csv` that is structured like this:
 8,33
 9,63
 ```
-where the first column of the CSV represents the patient `ID` and the second column represents the patient's `age`, then we can import the data into our `age` field by running this command:
+如果CSV的第一列代表患者ID，第二列代表患者`age`，那么我们可以`age`通过运行以下命令将数据导入到我们的字段中：
+
+
 ```
 pilosa import -i patients --field age ages.csv
 ```
 
-Now that we have some data in our index, let's run a few queries to demonstrate how to use that data.
+现在我们的索引中有一些数据，让我们运行一些查询来演示如何使用该数据。
 
-In order to find all patients over the age of 40, then simply run a `Row` query against the `age` field.
+为了找到40岁以上的所有患者，然后只需对该`age`字段进行 Row 查询。
 ``` request
 curl localhost:10101/index/patients/query \
      -X POST \
@@ -544,9 +543,9 @@ curl localhost:10101/index/patients/query \
 {"results":[{"attrs":{},"columns":[2,6,9]}]}
 ```
 
-You can find a list of supported range operators in the [Row (BSI) Query](../query-language/#row-bsi) documentation.
+您可以在[Row（BSI）查询](../query-language/#row-bsi)文档中找到支持的范围运算符列表。
 
-To find the average age of all patients, run a `Sum` query:
+要查找所有患者的平均年龄，请运行`Sum`查询：
 ``` request
 curl localhost:10101/index/patients/query \
      -X POST \
@@ -555,9 +554,9 @@ curl localhost:10101/index/patients/query \
 ``` response
 {"results":[{"value":377,"count":9}]}
 ```
-The results you get from the `Sum` query contain the sum of all values as well as the `count` of columns with a value. To get the average you can just divide `value` by `count`.
+`Sum`查询获得的结果包含所有年龄的总和以及`count`列的总和。您可以通过`value`除以`count`得到平均值。
 
-You can also provide a filter to the `Sum()` function to find the average age of all patients over 40.
+您还可以为该`Sum()`功能提供过滤器，以查找所有40岁以上患者的平均年龄。
 ``` request
 curl localhost:10101/index/patients/query \
      -X POST \
@@ -566,9 +565,9 @@ curl localhost:10101/index/patients/query \
 ``` response
 {"results":[{"value":191,"count":3}]}
 ```
-Notice in this case that the count is only `3` because of the `age > 40` filter applied to the query.
+请注意，在这种情况下，`count`只有`3`是执行查询过滤器`age > 40`导致。
 
-To find the minimum age of all patients, run a `Min` query:
+要查找所有患者的最低年龄，请运行`Min`查询：
 ``` request
 curl localhost:10101/index/patients/query \
      -X POST \
@@ -577,9 +576,9 @@ curl localhost:10101/index/patients/query \
 ``` response
 {"results":[{"value":19,"count":1}]}
 ```
-The results you get from the `Min` query contain the minimum `value` of all values as well as the `count` of columns with that value.
+从`Min`查询中获得的结果包含`value`所有值的最小值以及`count`具有该值的列。
 
-You can also provide a filter to the `Min()` function to find the minimum age of all patients over 40.
+您还可以为该`Min()`功能提供过滤器，以查找所有40岁以上患者的最低年龄。
 ``` request
 curl localhost:10101/index/patients/query \
      -X POST \
@@ -589,7 +588,7 @@ curl localhost:10101/index/patients/query \
 {"results":[{"value":57,"count":1}]}
 ```
 
-To find the maximum age of all patients, run a `Max` query:
+要查找所有患者的最大年龄，请运行`Max`查询：
 ``` request
 curl localhost:10101/index/patients/query \
      -X POST \
@@ -598,9 +597,9 @@ curl localhost:10101/index/patients/query \
 ``` response
 {"results":[{"value":71,"count":1}]}
 ```
-The results you get from the `Max` query contain the maximum `value` of all values as well as the `count` of columns with that value.
+从Max查询中获得的结果包含`value`所有值的最大值以及`count`具有该值的列。
 
-You can also provide a filter to the `Max()` function to find the maximum age of all patients under 40.
+您还可以为该`Max()`功能提供过滤器，以查找所有40岁以下患者的最大年龄。
 ``` request
 curl localhost:10101/index/patients/query \
      -X POST \
@@ -610,13 +609,13 @@ curl localhost:10101/index/patients/query \
 {"results":[{"value":34,"count":1}]}
 ```
 
-### Storing Row and Column Attributes
+### 存储行和列属性
 
-#### Introduction
+#### 介绍
 
-Pilosa can store arbitrary values associated to any row or column. In Pilosa, these are referred to as `attributes`, and they can be of type `string`, `integer`, `boolean`, or `float`. In this tutorial we will store some attribute data and then run some queries that return that data.
+Pilosa 可以存储与任何行或列关联的任意值。在 Pilosa，这些被称为`attributes`，并且它们可以是类型的`string`，`integer`，`boolean`，`float`。在本教程中，我们将存储一些属性数据，然后运行一些返回该数据的查询。
 
-First, create an index called `books` to use for this tutorial:
+首先，为本教程创建一个名为`books`索引：
 ``` request
 curl localhost:10101/index/books \
      -X POST
@@ -625,7 +624,7 @@ curl localhost:10101/index/books \
 {"success":true}
 ```
 
-Next, create a field in the `books` index called `members` which will represent library members who have read books.
+接下来，在`books`索引中创建一个字段`members`，该字段将表示已阅读书籍的用户。
 ``` request
 curl localhost:10101/index/books/field/members \
      -X POST \
@@ -635,7 +634,7 @@ curl localhost:10101/index/books/field/members \
 {"success":true}
 ```
 
-Now, let's add some books to our index.
+现在，让我们往索引中添加一些书籍。
 ``` request
 curl localhost:10101/index/books/query \
      -X POST \
@@ -649,7 +648,7 @@ curl localhost:10101/index/books/query \
 {"results":[null,null,null,null,null]}
 ```
 
-And add some members.
+并添加一些用户。
 ``` request
 curl localhost:10101/index/books/query \
      -X POST \
@@ -663,7 +662,7 @@ curl localhost:10101/index/books/query \
 {"results":[null,null,null,null,null]}
 ```
 
-At this point we can query one of the `member` records by querying that row.
+此时，我们可以通过查询`members`来查询其中一条记录。
 ``` request
 curl localhost:10101/index/books/query \
      -X POST \
@@ -673,7 +672,7 @@ curl localhost:10101/index/books/query \
 {"results":[{"attrs":{"fullName":"Sue Perkins"},"columns":[]}]}
 ```
 
-Now let's add some data to the matrix such that each pair represents a member who has read that book.
+现在让我们在矩阵中添加一些数据，这样每对代表一个读过那本书的成员。
 ``` request
 curl localhost:10101/index/books/query \
      -X POST \
@@ -695,7 +694,7 @@ curl localhost:10101/index/books/query \
 {"results":[true,true,true,true,true,true,true,true,true,true,true,true,true]}
 ```
 
-Now pull the record for `Sue Perkins` again.
+现在`Sue Perkins`再次拉开记录。
 ``` request
 curl localhost:10101/index/books/query \
      -X POST \
@@ -704,9 +703,9 @@ curl localhost:10101/index/books/query \
 ``` response
 {"results":[{"attrs":{"fullName":"Sue Perkins"},"columns":[1,2,4]}]}
 ```
-Notice that the result set now contains a list of integers in the `columns` attribute. These integers match the column IDs of the books that Sue has read.
+请注意，结果集现在包含`columns`属性中的整数列表。这些整数与Sue读过的书籍的列ID相匹配。
 
-In order to retrieve the attribute information that we stored for each book, we need to add a URL parameter `columnAttrs=true` to the query.
+为了检索我们为每本书存储的属性信息，我们需要`columnAttrs=true`在查询中添加一个URL参数。
 ``` request
 curl localhost:10101/index/books/query?columnAttrs=true \
      -X POST \
@@ -722,9 +721,8 @@ curl localhost:10101/index/books/query?columnAttrs=true \
   ]
 }
 ```
-The `book` attributes are included in the result set at the `columnAttrs` attribute.
-
-Finally, if we want to find out which books were read by both `Sue` and `Pedro`, we just perform an `Intersect` query on those two members:
+该`book`属性包含在结果集中的`columnAttrs`属性。
+最后，如果我们要找出双方都读哪些书`Sue`和`Pedro`，我们只是执行两个成员交集查询：
 ``` request
 curl localhost:10101/index/books/query?columnAttrs=true \
      -X POST \
@@ -738,5 +736,5 @@ curl localhost:10101/index/books/query?columnAttrs=true \
   ]
 }
 ```
+请注意，我们没有获得复杂查询的行属性，但我们仍然获得列属性，在本案例中是书信息。
 
-Notice that we don't get row attributes on a complex query, but we still get the column attributes—in this case book information.
