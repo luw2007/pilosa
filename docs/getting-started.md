@@ -13,12 +13,12 @@ nav = [
 Pilosa 默认提供 JSON 数据类型的 HTTP 服务。任何 HTTP 工具都可用于与 Pilosa 服务器进行交互。本文档中的示例将使用 [curl](https://curl.haxx.se/)，许多类 UNIX 系统，包括 Linux 和 MacOS 可以直接使用。Windows 用户可以在[这里](https://curl.haxx.se/download.html)下载 curl 。
 
 <div class="note">
-    <p>请注意，Pilosa服务器要求打开文件的上限。检查系统文档，了解如何在达到该限制时增加它。有关详细信息，请参阅<a href="/docs/administration/#open-file-limits">打开文件限制</a>。</p>
+    <p>请注意，Pilosa服务器要求打开文件的上限。检查系统文档，了解如何在达到该限制时增加它。有关详细信息，请参阅<a href="administration.md#open-file-limits">打开文件限制</a>。</p>
 </div>
 
 ### 开始 Pilosa
 
-按照[安装文档](../installation/)中的步骤安装 Pilosa。在终端中执行以下命令以使用默认配置运行Pilosa（Pilosa 启动在 [localhost:10101](http://localhost:10101)）：
+按照[安装文档](installation.md)中的步骤安装 Pilosa。在终端中执行以下命令以使用默认配置运行Pilosa（Pilosa 启动在 [localhost:10101](http://localhost:10101)）：
 
 ```
 pilosa server
@@ -41,7 +41,7 @@ curl localhost:10101/status
 
 为了更好地理解 Pilosa 的功能，我们将创建一个名为“Star Trace”的示例项目，其中包含有关1,000名流行的Github 项目，这些项目名称中包含“go”。Star Trace 索引将包括数据点，例如编程语言，标签和点赞用户 - 已经为项目点赞的人。
 
-尽管 Pilosa 没有以表格格式保存数据，但在描述数据模型时我们仍然使用术语“columns（列）”和“rows（行）”（译注：以下全部翻译为列和行）。我们将主对象放在列中，并将这些对象的属性放在行中。例如，Star Trace 项目将包含一个名为“repository”的索引，其中包含表示Github项目的列，以及表示编程语言和标记等属性的行。我们可以通过将行分组为名为Fields的集合来更好地组织行。因此，“项目”索引可能具有“语言”字段以及“标记”字段。您可以在文档的“ [数据模型](../data-model/)”部分中了解有关索引和字段的更多信息。
+尽管 Pilosa 没有以表格格式保存数据，但在描述数据模型时我们仍然使用术语“columns（列）”和“rows（行）”（译注：以下全部翻译为列和行）。我们将主对象放在列中，并将这些对象的属性放在行中。例如，Star Trace 项目将包含一个名为“repository”的索引，其中包含表示Github项目的列，以及表示编程语言和标记等属性的行。我们可以通过将行分组为名为Fields的集合来更好地组织行。因此，“项目”索引可能具有“语言”字段以及“标记”字段。您可以在文档的“ [数据模型](data-model.md)”部分中了解有关索引和字段的更多信息。
 
 #### 创建 Schema
 
@@ -234,4 +234,4 @@ curl localhost:10101/index/repository/query \
 ### 下一步是什么？
 
 下一步是什么？
-您可以跳转到[数据模型](../data-model/)以深入了解 Pilosa 的数据模型，或[Query Language](../query-language/)以获取有关 **PQL** （Pilosa Query Language）的更多详细信息。查看[示例](../examples/)了解 Pilosa 真实的示例实现。准备好用您最喜欢的语言？看看我们的小型但不断扩展的[官方客户端库](../client-libraries/)。
+您可以跳转到[数据模型](data-model.md)以深入了解 Pilosa 的数据模型，或[Query Language](query-language.md)以获取有关 **PQL** （Pilosa Query Language）的更多详细信息。查看[示例](examples.md)了解 Pilosa 真实的示例实现。准备好用您最喜欢的语言？看看我们的小型但不断扩展的[官方客户端库](client-libraries.md)。

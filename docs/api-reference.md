@@ -51,7 +51,7 @@ Creates an index with the given name.
 The request payload is in JSON, and may contain the `options` field. The `options` field is a JSON object with the following options:
 
 * `keys` (bool): Enables using column keys instead of column IDs.
-* `trackExistence` (bool): Enables or disables existence tracking on the index. Required for [Not](../query-language/#not) queries. It is `true` by default.
+* `trackExistence` (bool): Enables or disables existence tracking on the index. Required for [Not](query-language.md#not) queries. It is `true` by default.
 
 ``` request
 curl -XPOST localhost:10101/index/user -d '{"options":{"keys":true}}'
@@ -77,7 +77,7 @@ curl -XDELETE localhost:10101/index/user
 
 `POST /index/<index-name>/query`
 
-Sends a [query](../query-language/) to the Pilosa server with the given index. The request body is UTF-8 encoded text and response body is in JSON by default.
+Sends a [query](query-language.md) to the Pilosa server with the given index. The request body is UTF-8 encoded text and response body is in JSON by default.
 
 ``` request
 curl localhost:10101/index/user/query \
@@ -101,7 +101,7 @@ In order to send protobuf binaries in the request and response, set `Content-Typ
 
 The response doesn't include column attributes by default. To return them, set the `columnAttrs` query argument to `true`.
 
-The query is executed for all [shards](../data-model/#shard) by default. To use specified shards only, set the `shards` query argument to a comma-separated list of slice indices.
+The query is executed for all [shards](data-model.md#shard) by default. To use specified shards only, set the `shards` query argument to a comma-separated list of slice indices.
 
 ``` request
 curl "localhost:10101/index/user/query?columnAttrs=true&shards=0,1" \
@@ -179,7 +179,7 @@ The request payload is in JSON, and may contain the `options` field. The `option
 Valid `type`s and correspondonding options are listed below:
 
 * `set`
-    * `cacheType` (string): [ranked](../data-model/#ranked) or [LRU](../data-model/#lru) caching on this field. Default is `ranked`.
+    * `cacheType` (string): [ranked](data-model.md#ranked) or [LRU](data-model.md#lru) caching on this field. Default is `ranked`.
     * `cacheSize` (int): Number of rows to keep in the cache. Default is 50,000.
 * `int`
     * `min` (int): Minimum integer value allowed for the field.
@@ -187,9 +187,9 @@ Valid `type`s and correspondonding options are listed below:
 * `bool`
     * (boolean fields take no arguments)
 * `time`
-    * `timeQuantum` (string): [Time Quantum](../data-model/#time-quantum) for this field.
+    * `timeQuantum` (string): [Time Quantum](data-model.md#time-quantum) for this field.
 * `mutex`
-    * `cacheType` (string): [ranked](../data-model/#ranked) or [LRU](../data-model/#lru) caching on this field. Default is `ranked`.
+    * `cacheType` (string): [ranked](data-mode.md#ranked) or [LRU](data-model.md#lru) caching on this field. Default is `ranked`.
     * `cacheSize` (int): Number of rows to keep in the cache. Default is 50,000.
 
 The following example creates an `int` field called "quantity" capable of storing values from -1000 to 2000:

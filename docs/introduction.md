@@ -18,4 +18,4 @@ Pilosa 是一个开源的分布式索引。
 
 入门指南将向您展示与Pilosa交互的基础知识，并为您提供更深入探索的一些指导。
 
-在 [安装](installation) 之后, [入门指南](getting-started) 将提供与Pilosa交互的基础知识，和一些深入探索的指导。
+在 [安装](installation.md) 之后, [入门指南](getting-started.md) 将提供与Pilosa交互的基础知识，和一些深入探索的指导。

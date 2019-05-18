@@ -10,9 +10,9 @@ nav = [
 
 ## 安装
 
-Pilosa 目前支持 [MacOS](#installing-on-macos) 和 [Linux](#installing-on-linux)。
+Pilosa 目前支持 [MacOS](#在-MacOS-上安装) 和 [Linux](#在-linux-上安装)。
 
-### Installing on MacOS
+### 在 MacOS 上安装
 
 在MacOS上，Pilosa有四种安装方法：使用[Homebrew](https://brew.sh/)（推荐），下载二进制文件，从源码构建或使用 [Docker](#docker)。
 
@@ -189,11 +189,11 @@ Pilosa 目前支持 [MacOS](#installing-on-macos) 和 [Linux](#installing-on-lin
 
 #### 下一步做什么?
 
-跳转到 [入门指南](../getting-started/) 中创建您的第一个索引。
+跳转到 [入门指南](getting-started.md) 中创建您的第一个索引。
 
-### 在 Linux 中安装
+### 在 Linux 上安装
 
-在 Linux 中安装 Pilosa 有三种方法：下载二进制文件（推荐），从源码构建或使用[Docker](#docker)。
+在 Linux 上安装 Pilosa 有三种方法：下载二进制文件（推荐），从源码构建或使用[Docker](#docker)。
 
 #### 下载二进制
 
@@ -317,7 +317,7 @@ Pilosa 目前支持 [MacOS](#installing-on-macos) 和 [Linux](#installing-on-lin
 
 #### 下一步做什么?
 
-跳转到 [入门指南](../getting-started/) 中创建您的第一个索引。
+跳转到 [入门指南](getting-started.md) 中创建您的第一个索引。
 
 
 ### Windows
@@ -373,6 +373,6 @@ Pilosa 目前支持 [MacOS](#installing-on-macos) 和 [Linux](#installing-on-lin
     ```
 
 #### 下一步做什么？
-转到[入门指南](../getting-started/)，创建您的第一个Pilosa索引。
+转到[入门指南](getting-started.md)，创建您的第一个Pilosa索引。
 
 

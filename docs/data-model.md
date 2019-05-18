@@ -77,7 +77,7 @@ inner join Cars c on pc.CarID=c.ID
 where c.Make = 'Ford'
 ```
 
-可以使用像这样的 Pilosa 查询来完成（注意[Sum](../query-language/#sum)返回一个包含 sum 和 count 的 json 对象，从中可以很容易地计算平均值）：
+可以使用像这样的 Pilosa 查询来完成（注意[Sum](query-language.md#sum)返回一个包含 sum 和 count 的 json 对象，从中可以很容易地计算平均值）：
 
 ```pql
 Sum(Row(Car-Make="Ford"), field=Age)

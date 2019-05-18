@@ -31,7 +31,7 @@ Pilosa 支持使用TLS加密与集群中节点的所有通信。在本教程中�
 
 #### 安装 Pilosa 并创建目录结构
 
-如果您还没有开始，请在您的计算机上安装 Pilosa。对于 Linux 和 WSL（适用于Linux的Windows子系统），请参照[在Linux上安装](../installation/#installing-on-linux)说明。对于 MacOS，请参照[在MacOS上的安装](../installation/#installing-on-macos)。我们不支持其他平台的预编译版本，但您始终可以从源代码自行编译。请参阅[从源代码构建](../installation/#build-from-source)。
+如果您还没有开始，请在您的计算机上安装 Pilosa。对于 Linux 和 WSL（适用于Linux的Windows子系统），请参照[在Linux上安装](installation.md#installing-on-linux)说明。对于 MacOS，请参照[在MacOS上的安装](installation.md#installing-on-macos)。我们不支持其他平台的预编译版本，但您始终可以从源代码自行编译。请参阅[从源代码构建](installation.md#build-from-source)。
 
 安装 Pilosa 后，您可能需要将其添加到您的`$PATH`。检查您是否可以从命令行运行 Pilosa：
 ``` request
@@ -166,7 +166,7 @@ key = "pilosa.local.gossip32"
 
 * `data-dir`指向 Pilosa 服务写入数据的目录。如果它不存在，服务器将创建它。
 * `bind`是服务器侦听传入请求的地址。地址由三部分组成：协议类型，主机和端口。默认方案是`http`，请明确指定`https`以便使用 HTTPS 协议进行节点之间的通信。
-* `[集群]`包含群集的设置。我们只设置第一个节点`coordinator=true`来选择它作为协调节点。访问[群集配置](../configuration/#cluster-coordinator)查看其他设置。
+* `[集群]`包含群集的设置。我们只设置第一个节点`coordinator=true`来选择它作为协调节点。访问[群集配置](configuration.md#cluster-coordinator)查看其他设置。
 * `[tls]` 包含 TLS 设置，包括 SSL 证书的路径和相应的密钥。设置`skip-verify=true`禁用主机名验证和其他安全措施。不要在生产服务器上设置`skip-verify=true`。
 * `[gossip]`包含 Gossip 协议的设置。`seeds`包含从中为群集成员资格设定种子的节点列表。必须至少有一个 Gossip 种子。该`port`设置是节点的Gossip监听地址。如果群集的所有节点都在同一台计算机上运行，​​则每个节点的 Gossip 监听地址应该不同。否则，可以将其设置为相同的值。最后，`key`是我们之前创建的 Gossip 加密密钥。
 
@@ -543,7 +543,7 @@ curl localhost:10101/index/patients/query \
 {"results":[{"attrs":{},"columns":[2,6,9]}]}
 ```
 
-您可以在[Row（BSI）查询](../query-language/#row-bsi)文档中找到支持的范围运算符列表。
+您可以在[Row（BSI）查询](query-language.md#row-bsi)文档中找到支持的范围运算符列表。
 
 要查找所有患者的平均年龄，请运行`Sum`查询：
 ``` request

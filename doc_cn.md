@@ -4,6 +4,7 @@
 * [简介](docs/introduction.md)
 * [安装](docs/installation.md)
 * [入门指南](docs/getting-started.md)
+* [数据模型](docs/data-model.md)
 * [查询语言](docs/query-language.md)
 * [教程](docs/tutorials.md)
 

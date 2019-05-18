@@ -13,7 +13,7 @@ nav = [
 
 ### 简介
 
-本节将提供Pilosa查询语言（PQL）的详细参考和示例. 所有PQL查询都在单个[索引](../glossary/#index)上运行，并通过 `/index/INDEX_NAME/query` 接口传输给 Pilosa. 
+本节将提供Pilosa查询语言（PQL）的详细参考和示例. 所有PQL查询都在单个[索引](glossary.md#index)上运行，并通过 `/index/INDEX_NAME/query` 接口传输给 Pilosa. 
 您可以通过简单地将查询连接在一起来在单个请求中传递多个PQL查询（不需要空格）。结果格式始终如下：
 
 ```
@@ -30,7 +30,7 @@ nav = [
 
 ##### 例子
 
-在运行下面的任何示例查询之前，请按照[入门指南](../getting-started/)部分中的说明设置索引和字段，并使用一些数据填充它们。
+在运行下面的任何示例查询之前，请按照[入门指南](getting-started.md)部分中的说明设置索引和字段，并使用一些数据填充它们。
 
 这些示例只显示了所需的PQL查询 - `Set(10, stargazer=1)`使用 curl 对服务器运行查询，您将：
 ``` request
@@ -44,7 +44,7 @@ curl localhost:10101/index/repository/query \
 
 #### 参数和类型
 
-* `field` 该字段指定查询将在哪个 Pilosa [字段](../glossary/#field) 运行。有效字段名称是小写字符串; 它们以字母数字字符开头，仅包含字母数字字符和`_-`。它们的长度不得超过64个字符。
+* `field` 该字段指定查询将在哪个 Pilosa [字段](glossary.md#field) 运行。有效字段名称是小写字符串; 它们以字母数字字符开头，仅包含字母数字字符和`_-`。它们的长度不得超过64个字符。
 * `TIMESTAMP` 这是以下格式的时间 `YYYY-MM-DDTHH:MM` (例如：2006-01-02T15:04)
 * `UINT` 无符号整数 (例如：42839)
 * `BOOL` 布尔值, `true` 或 `false`
@@ -141,7 +141,7 @@ SetRowAttrs(stargazer, 10, username="mrpi", active=true)
 ```response
 {"results":[null]}
 ```
-为用户10设置用户名和活动状态。这些是对 Pilosa 没有意义的任意键/值对。您可以使用[Row](../query-language/#row)查询查看您在行上设置的属性`Row(stargazer=10)`。
+为用户10设置用户名和活动状态。这些是对 Pilosa 没有意义的任意键/值对。您可以使用[Row](query-language.md#row)查询查看您在行上设置的属性`Row(stargazer=10)`。
 
 删除第10行的`username`属性：
 ```request
@@ -198,7 +198,7 @@ curl localhost:10101/index/repository/query?columnAttrs=true -XPOST -d 'Row(star
   ]
 }
 ```
-在此示例中，ColumnAttrs 已设置在第10列和第20列，但未设置在第30列。相关属性都在单个columnAttrs列表中返回。有关更多信息，请参阅[查询索引](../api-reference/#query-index)部分。
+在此示例中，ColumnAttrs 已设置在第10列和第20列，但未设置在第30列。相关属性都在单个columnAttrs列表中返回。有关更多信息，请参阅[查询索引](api-reference.md#query-index)部分。
 
 删除第10列上的`url`属性：
 ```request
@@ -652,7 +652,7 @@ TopN(<FIELD>, [ROW_CALL], [n=UINT],
 * 一旦填满，缓存将根据字段选项CacheSize截断行集。跨越限制并具有相同计数的行将被截断，没有特定的顺序。
 * TopN查询的属性过滤器应用于现有的行排序缓存。排除在排序缓存范围之外的行，即使它们通常会通过过滤器，也会被忽略。
 
-查阅 [字段创建](../api-reference/#create-field)，了解更多缓存信息.
+查阅 [字段创建](api-reference.md#create-field)，了解更多缓存信息.
 
 **Examples:**
 
