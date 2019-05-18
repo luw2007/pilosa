@@ -25,7 +25,7 @@ Pilosa 首先在行中布局数据，因此查询获得一行或多行中的所�
 
 请注意，当行和列 ID 从0开始按顺序排列时，Pilosa 的性能最高。您可以在某种程度上偏离这一点，但是在单节点集群上设置一个列ID为2<sup>63</sup>的位将由于内存限制导致无法正常工作。
 
-![基本数据模型图](/img/docs/data-model.png)
+![基本数据模型图](https://www.pilosa.com/img/docs/data-model.png)
 *基本数据模型图*
 
 ### 索引
@@ -89,14 +89,14 @@ Sum(Row(Car-Make="Ford"), field=Age)
 
 排名字段按行ID维护列计数的排序缓存（按列设置顶行，每个列设置一个位）。此缓存有助于 TopN 查询。缓存大小默认为50,000，可以在字段创建时设置。
 
-![排名字段图](/img/docs/field-ranked.png)
+![排名字段图](https://www.pilosa.com/img/docs/field-ranked.png)
 * 排名字段图*
 
 #### LRU
 
 LRU高速缓存维护最近访问的行。
 
-![lru 字段图](/img/docs/field-lru.png)
+![lru 字段图](https://www.pilosa.com/img/docs/field-lru.png)
 *LRU 字段图*
 
 ### 时间索引
@@ -162,7 +162,7 @@ Set(2, B=1)
 Set(3, B=6)
 ```
 
-![BSI 字段图](/img/docs/field-bsi.png)
+![BSI 字段图](https://www.pilosa.com/img/docs/field-bsi.png)
 *BSI 字段图*
 
 查看此 [博客文章](/blog/range-encoded-bitmaps/) 了解有关 Pilosa 中BSI的更多详细信息。
@@ -187,7 +187,7 @@ Set(3, A=8, 2017-05-18T00:00)
 Set(3, A=8, 2017-05-19T00:00)
 ```
 
-![时间索引字段图](/img/docs/field-time-quantum.png)
+![时间索引字段图](https://www.pilosa.com/img/docs/field-time-quantum.png)
 *时间索引字段图*
 
 #### 互斥 Mutex
