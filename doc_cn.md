@@ -10,7 +10,7 @@
 
 ## pilosa.com/blog
 * [使用位图执行范围查询](docs/range-encoded-bitmaps.md)
-
+* [为 Pilosa 添加行程编码支持](docs/adding-rle-support.md)
 
 ## TODO
 * examples.md
@@ -19,4 +19,4 @@
 * administration.md
 * configuration.md
 * pdk.md
-* https://www.pilosa.com/blog/adding-rle-support/
+* https://www.pilosa.com/blog/universe-map/
