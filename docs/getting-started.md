@@ -120,7 +120,7 @@ docker exec -it pilosa /pilosa import -i repository -f language /language.csv
 
 #### 查询
 
-有14个赞的项目：
+用户14赞的项目：
 ``` request
 curl localhost:10101/index/repository/query \
      -X POST \
