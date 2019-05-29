@@ -543,7 +543,7 @@ Xor(Row(stargazer=2), Row(stargazer=1))
 {"results":[{"attrs":{},"columns":[20,30]}]}
 ```
 
-* columns 是由用户1 XOR 用户2（用户1或用户2，但不是同事）点赞的项目
+* columns 是由用户1 XOR 用户2（用户1或用户2，但不是同时）点赞的项目
 
 #### Not
 

@@ -32,13 +32,13 @@ Pilosa 的理念是：将所有内容表示为位图。例如，对象之间的�
 
 鉴于我们对平等编码位图的了解，我们可以采用一些（公认的常规）方法。一种方法是为每个可能的值创建`Captivity`一个特征（位图），如下所示：
 
-[Captivity计为单个位图](https://www.pilosa.com/img/blog/range-encoded-bitmaps/captive-rows.png) Captivity Counts表示为单个位图
+![Captivity计为单个位图](https://www.pilosa.com/img/blog/range-encoded-bitmaps/captive-rows.png) Captivity Counts表示为单个位图
 
 这种方法没问题，但它有一些限制。首先，它效率不高。根据基数，您可能需要创建大量位图来表示所有可能的值。其次，如果要按一系列`Captivity`值过滤查询，则必须对范围内的每个可能值执行`OR`操作。为了知道哪些动物的`Captivity`数量少于100个，您的查询需要执行类似的操作（Captivity=99 OR Captivity=98 OR Captivity=97 OR ...）。明白了吗。
 
 另一种方法是创建`Captivity`范围桶，而不是将每个可能的值表示为唯一的位图。在这种情况下，您可能会有这样的事情：
 
-[`Captivity`计数为桶](https://www.pilosa.com/img/blog/range-encoded-bitmaps/captive-buckets.png) `Captivity`计数表示为桶
+![`Captivity`计数为桶](https://www.pilosa.com/img/blog/range-encoded-bitmaps/captive-buckets.png) `Captivity`计数表示为桶
 
 这种方法的一个好处是它的效率更高一些。它也更容易查询，因为您不必构造多个位图的联合以表示一系列值。缺点是它不是那么精细; 通过转换`47`到0-99桶，您正在丢失信息。
 
@@ -47,7 +47,7 @@ Pilosa 的理念是：将所有内容表示为位图。例如，对象之间的�
 ### 范围编码位图(Range-Encoded Bitmaps)
 首先，让我们看一下上面的例子，看看我们使用范围编码位图时的样子。
 
-[`Captivity`计数为范围编码的位图](https://www.pilosa.com/img/blog/range-encoded-bitmaps/captive-range-encoded-rows.png)`Captivity`计数为范围编码的位图
+![`Captivity`计数为范围编码的位图](https://www.pilosa.com/img/blog/range-encoded-bitmaps/captive-range-encoded-rows.png)`Captivity`计数为范围编码的位图
 
 使用范围编码位图表示值与使用相等编码执行的操作类似，但不是仅设置与特定值对应的位，而是为每个大于实际值的值设置一个位。例如，因为有14个考拉 Koala Bears的灵敏度，我们在位图14中设置位以及位图15,16,17等。而不是代表具有特定`Captivity`计数的所有动物的位图，现在位图代表所有被`Captivity`的动物数量达到并包括该数量。
 
@@ -62,14 +62,14 @@ Pilosa 的理念是：将所有内容表示为位图。例如，对象之间的�
 
 让我们看一下我们的示例数据，并讨论如何使用位切片索引来表示它。
 
-[`Captivity` 计数为Base-10的位切片索引](https://www.pilosa.com/img/blog/range-encoded-bitmaps/captive-bsi-base10.png) Base-10的位切片索引
+![`Captivity` 计数为Base-10的位切片索引](https://www.pilosa.com/img/blog/range-encoded-bitmaps/captive-bsi-base10.png) Base-10的位切片索引
 
 请注意，我们已将值分解为三个Base-10的组。第一列位表示值003，即`Captivity`中的海牛数。组0 `003`是`3`，所以我们在组0，行3中设置了一个位。组1和组2 `003`都是0，所以我们在组1，第0行和组2，第0行中设置位。我们的Base-10的索引中的每个组需要10个位图来表示所有可能的值，因此在我们需要表示0到956范围内的值的`Captivity`示例中，我们只需要（3 x 10）= 30位图（而不是我们使用时需要的957位图）每个不同值的位图）。
 
 这很好，但我们基本上只是找到了一种通过我们的平等编码策略提高效率的方法。让我们看看当我们将位片索引与范围编码相结合时的样子。
 
 ## 范围编码的位片索引(Range-Encoded Bit-Slice Indexes)
-[`Captivity` 计数为范围编码，Base-10的位切片索引](https://www.pilosa.com/img/blog/range-encoded-bitmaps/captive-bsi-range-encoded-base10.png) 范围编码，Base-10，位切片索引
+![`Captivity` 计数为范围编码，Base-10的位切片索引](https://www.pilosa.com/img/blog/range-encoded-bitmaps/captive-bsi-range-encoded-base10.png) 范围编码，Base-10，位切片索引
 
 请注意，每个组中最重要的值（Base-10的情况下为9）始终为1。因此，我们不需要存储最高价值。因此，对于Base-10，范围编码的位切片索引，我们只需要9个位图来表示组。除此之外，我们还需要存储一个名为“Not Null”的位图，它指示是否为该列设置了值。下图显示了生成的位图。
 
@@ -80,13 +80,13 @@ Pilosa 的理念是：将所有内容表示为位图。例如，对象之间的�
 ### Base-2
 我们如果`Captivity`不使用Base-2表示我们的值，而是使用Base-2，那么我们最终得到一组范围编码的位切片索引，如下所示：
 
-[容量计数为范围编码的Base-2位切片索引](https://www.pilosa.com/img/blog/range-encoded-bitmaps/captive-bsi-range-encoded-base2.png) 范围编码，Base-2，位切片索引
+![容量计数为范围编码的Base-2位切片索引](https://www.pilosa.com/img/blog/range-encoded-bitmaps/captive-bsi-range-encoded-base2.png) 范围编码，Base-2，位切片索引
 
 第一列位代表Base-2值`000000011`，它是`Captivity`中的海牛Manatees数量（3 in Base-10）。由于组0和组1 000000011都是1，我们在组0，行1和组1，行1中设置了一个位。由于其余组`000000011`都是0，所以我们在第0行为组2到9设置了一个位，并且（因为这些是范围编码的）我们在每个大于0的值中设置一个位。在Base-2的情况下，这意味着我们还在第1行中为组2到9设置位。
 
 但是请记住，就像我们之前看到的base-10表示的位图9一样，位图1总是一个，所以我们不需要存储它。这让我们留下了这个：
 
-[`Captivity` 计数为范围编码，Base-2，位切片索引，具有非空](https://www.pilosa.com/img/blog/range-encoded-bitmaps/captive-bsi-range-encoded-base2-not-null.png) 具有非空的范围编码，Base-2，位切片索引
+![`Captivity` 计数为范围编码，Base-2，位切片索引，具有非空](https://www.pilosa.com/img/blog/range-encoded-bitmaps/captive-bsi-range-encoded-base2-not-null.png) 具有非空的范围编码，Base-2，位切片索引
 
 通过这种编码，我们可以只用10位图来表示样本值的范围！另外，请注意Base-2，范围编码的位切片索引是整数值的二进制表示的倒数。这告诉我们的是，我们可以仅使用（n + 1）个位图（其中附加位图是“Not Null”位图）来表示基数为n的任何值范围。这意味着我们可以对大整数值执行范围查询，而无需存储不合理数量的位图。
 
@@ -141,7 +141,7 @@ curl localhost:10101/index/animals/query \
 ##结论
 在这篇文章中描述的示例显示了我们如何使用位切片索引来显着减少表示一系列整数值所需的位图数量。通过将范围编码应用于索引，我们可以对数据执行各种范围查询。下图比较了我们讨论的不同方法。
 
-[比较图表](https://www.pilosa.com/img/blog/range-encoded-bitmaps/example-comparison.png) 比较图表
+![比较图表](https://www.pilosa.com/img/blog/range-encoded-bitmaps/example-comparison.png) 比较图表
 
 我们在版本0.7.0中添加了Range-Encoding支持。您还应该查看范围编码文档。
 
